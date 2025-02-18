@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine3.11 AS build
+FROM golang:1.22-alpine3.18 AS build
 
 RUN apk --no-cache add gcc g++ make ca-certificates
 
@@ -10,9 +10,9 @@ COPY vendor ./vendor
 
 COPY account ./account
 
-RUN GO111MODULE=on go build -mod vendor -o /go/bin/app ./account/cmd/account
+RUN go build -mod=vendor -o /go/bin/app ./order/cmd/account
 
-FROM alpine:3.11
+FROM alpine:3.18
 
 WORKDIR /usr/bin
 
@@ -20,4 +20,4 @@ COPY --from=build /go/bin/app .
 
 EXPOSE 8080
 
-CMD ["./app"]
+CMD ["app"]
