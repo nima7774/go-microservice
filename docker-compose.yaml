@@ -1,15 +1,78 @@
-
+version: '3.7'
 services:
   account:
+    build: 
+      context: .
+      dockerfile: ./account/app.dockerfile
+    depends_on:
+      - account_db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@account_db:5432/postgres
+    restart: on-failure
 
   catalog:
-
+    build: 
+      context: .
+      dockerfile: ./catalog/app.dockerfile
+    depends_on:
+      - catalog_db
+    environment:
+      DATABASE_URL: http://catalog_db:9200
+    restart: on-failure
   order:
-
+    build:
+      context: .
+      dockerfile: ./order/app.dockerfile
+    depends_on:
+      - order_db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@order_db:5432/postgres
+      ACCOUNT_SERVICE_URL: http://account:8080
+      CATALOG_SERVICE_URL: http://catalog:8080
+    restart: on-failure
   graphql:
+    build:
+      context: .
+      dockerfile: ./graphql/app.dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - account
+      - catalog
+      - order
+    environment:
+      ACCOUNT_SERVICE_URL: http://account:8080
+      CATALOG_SERVICE_URL: http://catalog:8080
+      ORDER_SERVICE_URL: http://order:8080
+    restart: on-failure
 
   account_db:
+    build: 
+      context: ./account 
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB:nima4774
+      POSTGRES_USER:nima4774
+      POSTGRES_PASSWORD:123456
+    ports:
+      - 5432:5432
+    restart: unless-stopped
 
   catalog_db:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      discovery.type: single-node
+   
 
   order_db:
+    build:
+      context: ./order
+      dockerfile: ./db.dockerfile
+    environment:
+      POSTGRES_DB:nima4774
+      POSTGRES_USER:nima4774
+      POSTGRES_PASSWORD:123456
+    ports:
+      - 5432:5432
+    restart: unless-stopped
