@@ -63,7 +63,7 @@ func (r *postgresRepository) PutOrder(ctx context.Context, o Order) error {
 		"order_id", "product_id", "quantity",
 	))
 	for _, p := range o.Products {
-		_, err = stmt.ExecContext(ctx, o.ID, p.ProductID, p.Quantity)
+		_, err = stmt.ExecContext(ctx, o.ID, p.ID, p.Quantity)
 		if err != nil {
 			return err
 		}
@@ -88,6 +88,7 @@ func (r *postgresRepository) GetOrdersForAccount(ctx context.Context, accountID 
 	orderedProduct := &OrderedProduct{}
 	products := []OrderedProduct{}
 
+	order := &Order{}
 	for rows.Next() {
 		if err = rows.Scan(
 			&order.ID,

@@ -7,7 +7,7 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
-type service interface {
+type Service interface {
 	PostOrder(ctx context.Context, accountID string, products []OrderedProduct) (*Order, error)
 	GetOrdersForAccount(ctx context.Context, accountID string) ([]Order, error)
 }
